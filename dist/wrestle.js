@@ -97,7 +97,8 @@ sprat.wrestle = (function() {
 		 * @param {string} msg
 		 */
 		debug : function(msg) {
-			if (console) {
+			// by default debugging is disabled
+			if (console && sprat.$spratAppInstance && sprat.$spratAppInstance.debug()) {
 				console.debug(msg);
 			}
 		},
@@ -176,7 +177,7 @@ sprat.wrestle = (function() {
 					// some valid responses which can return JSON or empty
 					// responses
 					if (jqXHR.status >= 200 && jqXHR.status < 400) {
-						util.info("Recevied HTTP status code >= 200 && < 400, executing success pipe");
+						console.debug("Recevied HTTP status code >= 200 && < 400, executing success pipe");
 
 						var data = dataOrJqXHR;
 
@@ -218,11 +219,11 @@ sprat.wrestle = (function() {
 						try {
 							data = jQuery.parseJSON(jqXHR.responseText);
 						} catch (ex) {
-							console.error("Failed to parse responseText as JSON, content '" + jqXHR.responseText + "'");
+							util.error("Failed to parse responseText as JSON, content '" + jqXHR.responseText + "'");
 						}
 					}
 
-					console.info("Running " + context.pipes.fail.length + " error handlers");
+					util.debug("Running " + context.pipes.fail.length + " error handlers");
 
 					util.runPipes(context.pipes.fail, data, jqXHR, textStatus, context);
 				};
@@ -263,7 +264,7 @@ sprat.wrestle = (function() {
 					util.debug("Running handleModelUpdated");
 
 					if (jqXHR.status == '204') {
-						util.info("Received HTTP 204 response, triggering handleModelUpdated event");
+						util.debug("Received HTTP 204 response, triggering handleModelUpdated event");
 						$(document).trigger('handleModelUpdated', [ data, jqXHR, context ]);
 
 						return true;
@@ -285,7 +286,7 @@ sprat.wrestle = (function() {
 					}
 
 					if (jqXHR.status == context.expectResponseCode) {
-						util.info("Received expected HTTP response code '" + context.expectResponseCode + "', triggering expectResponseCode event");
+						util.debug("Received expected HTTP response code '" + context.expectResponseCode + "', triggering expectResponseCode event");
 						$(document).trigger('expectResponseCode', [ data, jqXHR, context ]);
 
 						return true;
@@ -325,7 +326,7 @@ sprat.wrestle = (function() {
 					var hasException = data.cause || (data.exception && (data.exception != 'org.springframework.validation.BindException'));
 
 					if (hasException) {
-						util.info("Triggering springApplicationExceptionHandler");
+						util.debug("Triggering springApplicationExceptionHandler");
 						var exception = ('object' === typeof (data)) ? data : jQuery.parseJSON(data.responseText);
 
 						$(document).trigger('springApplicationExceptionHandler',
@@ -358,7 +359,7 @@ sprat.wrestle = (function() {
 
 					// Spring REST single error response
 					if (parsedData.error) {
-						util.info("Triggering springRESTErrors ... ");
+						util.debug("Triggering springRESTErrors ... ");
 
 						errors = [ parsedData ];
 
@@ -389,7 +390,7 @@ sprat.wrestle = (function() {
 					var errors = null;
 
 					if (parsedData.errors && $.isArray(parsedData.errors)) {
-						console.info("Triggering springValidationErrors ... ");
+						util.debug("Triggering springValidationErrors ... ");
 						errors = parsedData.errors;
 
 						$(document).trigger('springValidationErrors', [ errors, context, data, jqXHR, textStatus ]);
@@ -408,9 +409,9 @@ sprat.wrestle = (function() {
 					var error = "Received unrecognized response from the backend, please contact developers";
 
 					if (console) {
-						console.debug("Data of unrecognized response: ");
-						console.debug(data);
-						console.debug(context);
+						util.debug("Data of unrecognized response: ");
+						util.debug(data);
+						util.debug(context);
 					}
 
 					throw error;

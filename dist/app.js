@@ -73,4 +73,8 @@ sprat.app = function(config) {
 	self.flavor = function() {
 		return self.config.flavor;
 	};
+	
+	self.debug = function() {
+		return self.config.debug;
+	};
 };
