@@ -1268,7 +1268,7 @@ sprat.wrestle = (function() {
 					// some valid responses which can return JSON or empty
 					// responses
 					if (jqXHR.status >= 200 && jqXHR.status < 400) {
-						console.debug("Recevied HTTP status code >= 200 && < 400, executing success pipe");
+						util.debug("Received HTTP status code >= 200 && < 400, executing success pipe");
 
 						var data = dataOrJqXHR;
 
@@ -1310,7 +1310,7 @@ sprat.wrestle = (function() {
 						try {
 							data = jQuery.parseJSON(jqXHR.responseText);
 						} catch (ex) {
-							util.error("Failed to parse responseText as JSON, content '" + jqXHR.responseText + "'");
+							util.debug("Failed to parse responseText as JSON, content '" + jqXHR.responseText + "'");
 						}
 					}
 
@@ -2019,38 +2019,5 @@ sprat.ui = {
 		}
 
 		$(options.root).modal(args);
-	},
-	/**
-	 * Find the root element for further jQuery selections. By default, the root
-	 * context "body" will be returned
-	 * 
-	 * @param {object} options
-	 *            if options has property .formContext, this will be used as
-	 *            root
-	 * @param {string} [selector]
-	 *            If the optional selector is specified, the prior root context (body or
-	 *            .formContext) will be used
-	 */
-	findRoot : function(options, selector) {
-		var root = $("body");
-
-		if (options && options.form) {
-			root = options.form;
-		}
-
-		// check for valid root
-		if (!(root instanceof jQuery)) {
-			throw "The root you provided is not a jQuery object. Pass { form: $('my_selector') to options array }";
-		}
-
-		if (selector) {
-			var appender = root.find(selector);
-
-			if (appender.length >= 1) {
-				root = $(appender[0]);
-			}
-		}
-
-		return root;
 	}
 };

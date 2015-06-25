@@ -177,7 +177,7 @@ sprat.wrestle = (function() {
 					// some valid responses which can return JSON or empty
 					// responses
 					if (jqXHR.status >= 200 && jqXHR.status < 400) {
-						console.debug("Recevied HTTP status code >= 200 && < 400, executing success pipe");
+						util.debug("Received HTTP status code >= 200 && < 400, executing success pipe");
 
 						var data = dataOrJqXHR;
 
@@ -219,7 +219,7 @@ sprat.wrestle = (function() {
 						try {
 							data = jQuery.parseJSON(jqXHR.responseText);
 						} catch (ex) {
-							util.error("Failed to parse responseText as JSON, content '" + jqXHR.responseText + "'");
+							util.debug("Failed to parse responseText as JSON, content '" + jqXHR.responseText + "'");
 						}
 					}
 

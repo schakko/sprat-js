@@ -5,7 +5,10 @@
 	
 	grunt.initConfig({
 		qunit: {
-			files: ["test/**/*.tests.html"]
+			files: [
+				"test/**/*.tests.html", 
+				"!**/wrestle.tests.html" // must be ignored b/c of EBUSY errors of nodejs
+			]
 		},
 		jshint: { 
 			files: dirs
