@@ -7,8 +7,14 @@ Usage
 The generic usage is straightforward:
 
 	<head>
-		<!-- add dependencies -->
+		<!-- CSS -->
+		<link rel="stylesheet" href="datatables/media/css/jquery.dataTables.css" />
+		
+		<!-- add external dependencies -->
+		<script type="text/javascript" src="datatables/media/js/jquery.dataTables.min.js'"></script>
+		<!-- add redistributed libraries -->
 		<script src="$PATH/vendor/jsonselect.js"></script>
+		<!-- add Sprat dependencies -->
 		<script src="$PATH/dist/wrestle.js"></script>
 		<script src="$PATH/dist/ui/component/datatable.js"></script>
 	</head>
@@ -41,7 +47,7 @@ The generic usage is straightforward:
 			.withSpringDataAttribute("units")
 			.mapColumns({
 				"actions": function(data) {
-					return "Aktionen"
+					return "Actions"
 				}
 			})
 			.build();

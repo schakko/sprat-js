@@ -328,7 +328,8 @@ sprat.ui.component.dataTable = function() {
 				// we use JSONSelect for selecting JSON elements
 				var recordsTotalSelector = ".totalElements";
 				var recordsFilteredSelector = ".totalElements";
-				var dataSelector = ".content";
+				// assume that the content is stored in the array with the JSON property name "content"
+				var dataSelector = "array.content";
 
 				var r = {
 					"recordsTotal" : 0,
@@ -357,8 +358,9 @@ sprat.ui.component.dataTable = function() {
 
 					// only filter any data if data is really available
 					if (r.recordsTotal > 0) {
-						r.data = window.JSONSelect.match(dataSelector, json)[0];
-
+						var matchedData = window.JSONSelect.match(dataSelector, json);
+						r.data = matchedData[0];
+						
 						if (undefined === r.data) {
 							throw "Could not find any data for selector '" + dataSelector + "'. Check your selector for any typos. Maybe you are missing a withSpringDataAttribute() call?";
 						}
@@ -371,6 +373,10 @@ sprat.ui.component.dataTable = function() {
 			};
 			
 			instance.options.datatable.columnDefs = instance.buildColumnDefinitions();
+			
+			if (!instance.table.dataTable) {
+				throw "sprat.ui.component.dataTable requires DataTables (https://www.datatables.net/).";
+			}
 
 			// create datatable instance
 			instance.dataTable = instance.table.dataTable(instance.options.datatable);
