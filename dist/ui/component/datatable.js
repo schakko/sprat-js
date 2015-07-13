@@ -7,9 +7,10 @@ sprat.ui.component = sprat.ui.component || {};
 /**
  * Maps Spring Data REST or Spring Data HATEOAS endpoints to the jQuery DataTable plug-in.
  */
-sprat.ui.component.dataTable = function() {
-	var ComponentDataTable = function() {
+sprat.ui.component.dataTable = function(_defaults) {
+	var ComponentDataTable = function(_defaults) {
 		var self = this;
+		self.defaults = _defaults || {};
 
 		// private section
 		var _internal = {
@@ -61,6 +62,7 @@ sprat.ui.component.dataTable = function() {
 			initialized: false,
 			options: {
 				springDataAttribute: null,
+				requestParameters: {},
 				datatable: {
 					"order" : [ 0, "desc" ],
 					"jQueryUI" : false,
@@ -104,7 +106,7 @@ sprat.ui.component.dataTable = function() {
 				var draw = data.draw;
 				var pageSize = data.length;
 				var start = data.start;
-				var pageNum = (start === 0) ? 1 : (start / pageSize);
+				var pageNum = (start === 0) ? 0 : (start / pageSize);
 				var sorting = { dir: null };
 				
 				if (data.order && data.order.length >= 0) {
@@ -116,14 +118,16 @@ sprat.ui.component.dataTable = function() {
 				var sortCol = $(this).find("thead > tr > th").eq(sorting.column).attr(
 						_internal.attributes.prefix + _internal.attributes.property);
 
-				var request = {
+				var defaultRequest = {
 					"size" : pageSize,
 					"page" : pageNum
 				};
-				
+
 				if (sortCol) {
-					request.sort =  sortCol + "," + sortDir;
+					defaultRequest.sort =  sortCol + "," + sortDir;
 				}
+
+				var request = $.extend(true, defaultRequest, instance.options.requestParameters);
 
 				$.restGet(instance.restEndpoint, request, function(afterReceive) {
 					var r = instance.convertResponseToDatatable(afterReceive, draw);
@@ -163,6 +167,16 @@ sprat.ui.component.dataTable = function() {
 		 */
 		self.withSpringDataAttribute = function(_attribute) {
 			instance.options.springDataAttribute = _attribute;
+			return self;
+		};
+
+		/**
+		 * Configure GET parameters for every request
+		 * @param _parameters
+		 * @returns {ComponentDataTable}
+		 */
+		self.withRequestParameters = function(_parameters) {
+			instance.options.requestParameters = _parameters;
 			return self;
 		};
 		
@@ -237,7 +251,7 @@ sprat.ui.component.dataTable = function() {
 		self.build = function() {
 			// inherit default options
 			$.extend(true, instance.options.datatable, self.defaults, datatableDefaults); 
-			
+
 			if (!instance.table) {
 				throw "Datatable has not been bound by calling bindTable()";
 			}
@@ -387,5 +401,5 @@ sprat.ui.component.dataTable = function() {
 		return self;
 	};
 	
-	return new ComponentDataTable();
+	return new ComponentDataTable(_defaults);
 };
