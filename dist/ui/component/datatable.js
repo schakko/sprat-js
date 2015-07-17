@@ -6,6 +6,8 @@ sprat.ui.component = sprat.ui.component || {};
 
 /**
  * Maps Spring Data REST or Spring Data HATEOAS endpoints to the jQuery DataTable plug-in.
+ * @param {object} _defaults Datatable options
+ * @return ComponentDataTable
  */
 sprat.ui.component.dataTable = function(_defaults) {
 	var ComponentDataTable = function(_defaults) {
@@ -139,7 +141,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 		/**
 		 * Bind jQuery table element to the backing datatable
 		 * @param {object} _table jQuery element
-		 * @return self
+		 * @return ComponentDataTable
 		 */
 		self.bindTable = function(_table) {
 			if (!(_table instanceof jQuery)) {
@@ -153,7 +155,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 		/**
 		 * Bind table to given Spring Data REST endpoint
 		 * @param {string} _endpoint URL of Spring Data REST endpoint
-		 * @return self
+		 * @return ComponentDataTable
 		 */
 		self.toEndpoint = function(_endpoint) {
 			instance.restEndpoint = _endpoint;
@@ -162,8 +164,9 @@ sprat.ui.component.dataTable = function(_defaults) {
 		
 		/**
 		 * Set the Spring Data REST "_embedded.*" key to lookup the data
+		 *
 		 * @param {string} _attribute
-		 * @return self
+		 * @return {ComponentDataTable}
 		 */
 		self.withSpringDataAttribute = function(_attribute) {
 			instance.options.springDataAttribute = _attribute;
@@ -172,6 +175,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 
 		/**
 		 * Configure GET parameters for every request
+		 *
 		 * @param _parameters
 		 * @returns {ComponentDataTable}
 		 */
@@ -184,13 +188,19 @@ sprat.ui.component.dataTable = function(_defaults) {
 		 * Map multiple columns to their corresponding renderer. You can use a numeric value (index based), a property name or an alias.
 		 *
 		 * @param {object} mappedColumns
-		 * @return self
+		 * @return ComponentDataTable
 		 */
 		self.mapColumns = function(mappedColumns) {
 			instance.mappedColumns = mappedColumns;
 			return self;
 		};
-		
+
+		/**
+		 * Set Datatable options
+		 *
+		 * @param {object} options
+		 * @return {ComponentDataTable}
+		 */
 		self.datatableOptions = function(options) {
 			instance.options.datable = options;
 			return self;
@@ -210,8 +220,9 @@ sprat.ui.component.dataTable = function(_defaults) {
 		
 		/**
 		 * This callback is executed after a row has been rendered
+		 *
 		 * @param {function} callback
-		 * @return self
+		 * @return ComponentDataTable
 		 */
 		self.afterCreatedRow = function(callback) {
 			instance.options.datatable.createdRow = callback;
@@ -233,7 +244,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 		/**
 		 * Change the REST endpoint and do a reload of the backed table.
 		 * @param {string} source URL
-		 * @return self
+		 * @return ComponentDataTable
 		 */
 		self.updateEndpoint = function(source) {
 			if (!instance.initialized) {
@@ -247,6 +258,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 		
 		/**
 		 * Build datatable
+		 * @return ComponentDataTable
 		 */
 		self.build = function() {
 			// inherit default options
