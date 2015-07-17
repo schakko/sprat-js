@@ -2,4 +2,6 @@
   "name": "sprat-js",
   "version": "1.0.3",
   "main": "dist/app.js",
+  dependencies: [
+  ]
 }
