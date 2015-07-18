@@ -746,7 +746,7 @@ sprat.path = function() {
 				// if user has not provided own function to translate the
 				// template path, we use the default handler
 				_templatePathTranslator = _templatePathTranslator || function(state) {
-					return self.parsePathTemplate(state.root + append, state.lastArguments);
+					return sprat.web.uri.parse(state.root + append, state.lastArguments);
 				};
 
 				if (_self.aliasFunctions[alias]) {
@@ -906,67 +906,6 @@ sprat.path = function() {
 
 			return data;
 		}
-	};
-
-	/**
-	 * Parse a path template and resolve every path variable by given
-	 * parameters. Indexed template variables ({0}, {1}, {...}) are looked up by
-	 * the passed parameter count. Template variables by name like '{name}' are
-	 * resolved by iterating over every parameter and tryining to find the given
-	 * key if the parameter is an object. If a default value is given
-	 * ({name:my_default_value}) the default value is used if the path variable
-	 * could not be resolved.
-	 * 
-	 * @param {string} path
-	 *            The path can have a format like '/a/b/c={0}/d={1}',
-	 *            '/a?{name:default_value}' or '/a?name={name}'. The template
-	 *            variables can be mixed up.
-	 * @param {array} parameters
-	 *            a list of objects, strings or integers which are
-	 *            used to populate the path variables.
-	 */
-	self.parsePathTemplate = function(path, parameters) {
-		var matcher = /\{(\w*)(:(\w*))?\}/;
-
-		/**
-		 * Extract the value for the given identifier from the provided
-		 * parameters
-		 * 
-		 * @param {string} identifier
-		 * @param {{number|string}} _defaultValue 
-		 *			value to fallback if path variable could not be found
-		 * @param {array} parameters
-		 * @return _defaultValue or an empty string if parameter is not present
-		 */
-		function valueFor(identifier, _defaultValue, parameters) {
-			// identifier is an integer
-			if ($.isNumeric(identifier)) {
-				if (parseInt(identifier) < parameters.length) {
-					return parameters[parseInt(identifier)];
-				}
-			}
-
-			// find objects in parameter list and find the given key
-			for (var i = 0; i < parameters.length; i++) {
-				if (typeof (parameters[i]) === 'object') {
-					if (parameters[i][identifier]) {
-						return parameters[i][identifier];
-					}
-				}
-			}
-
-			return _defaultValue || "";
-		}
-
-		var matches;
-
-		// iterate over every match to make sure we can handle '/{0}/{1}/...'
-		while (null !== (matches = matcher.exec(path))) {
-			var replace = matches[0];
-			path = path.replace(replace, valueFor(matches[1], matches[3], parameters));
-		}
-
-		return path;
 	};
 
 	/**

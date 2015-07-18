@@ -21,7 +21,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 				"isSearchable" : "is-searchable",
 			},
 			attributes: {
-				prefix: "rdt-",
+				prefix: "sprat-datatable-",
 				renderer: "renderer",
 				property: "property",
 				alias: "alias"
@@ -45,7 +45,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 				return jqElem.hasClass(_internal.attributes.prefix + clazz);
 			},
 			/**
-			 * Returns the value of HTML attribute. This methods prepends the "rdt-"
+			 * Returns the value of HTML attribute. This methods prepends the "sprat-datatable-"
 			 * prefix.
 			 */
 			optionValue : function(jqElem, option) {
@@ -62,6 +62,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 		var instance = {
 			restEndpoint: null,
 			initialized: false,
+			lastReceivedData: null,
 			options: {
 				springDataAttribute: null,
 				requestParameters: {},
@@ -137,7 +138,15 @@ sprat.ui.component.dataTable = function(_defaults) {
 				});
 			}
 		};
-		
+
+		/**
+		 * Return last received data from backend, containing the whole AJAX response.
+		 * @return {object}
+		 */
+		self.lastReceivedData = function() {
+			return instance.lastReceivedData;
+		};
+
 		/**
 		 * Bind jQuery table element to the backing datatable
 		 * @param {object} _table jQuery element
@@ -295,7 +304,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 						"data": null,
 					};
 
-					// class="rdt-is-orderable" has been set
+					// class="sprat-datatable-is-orderable" has been set
 					if (util.isCssClassPresent($(this), _internal.cssClasses.isOrderable)) {
 						spec.orderable = true;
 					}
@@ -304,7 +313,7 @@ sprat.ui.component.dataTable = function(_defaults) {
 						spec.searchable = true;
 					}
 
-					// rdt-renderer has been set
+					// sprat-datatable-renderer has been set
 					if (null !== (customRenderer = util.optionValue($(this), _internal.attributes.renderer))) {
 						if (!sprat.ui || !sprat.ui.renderer) {
 							throw "You are using a customer renderer but sprat.ui has not been included. Add <script src='$SPRAT_PATH/dist/ui/renderer.js'></script> to your HTML file";
@@ -313,13 +322,13 @@ sprat.ui.component.dataTable = function(_defaults) {
 						spec.render = sprat.ui.renderer.get(customRenderer, instance);
 					}
 
-					// rdt-property has been set
+					// sprat-datatable-property has been set
 					if (null !== (attributeValue = util.optionValue($(this), _internal.attributes.property))) {
 						spec.name = attributeValue;
 						spec.data = attributeValue;
 					}
 					
-					// rdt-alias has been set
+					// sprat-datatable-alias has been set
 					var useAlias = util.optionValue($(this), _internal.attributes.alias) || -1;
 
 					// check programatically configuration of this table.
@@ -351,6 +360,8 @@ sprat.ui.component.dataTable = function(_defaults) {
 			 *            jQuery DataTable object
 			 */
 			instance.convertResponseToDatatable = function(json, draw) {
+				instance.lastReceivedData = json;
+
 				// we use JSONSelect for selecting JSON elements
 				var recordsTotalSelector = ".totalElements";
 				var recordsFilteredSelector = ".totalElements";

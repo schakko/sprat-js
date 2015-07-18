@@ -24,15 +24,15 @@ The generic usage is straightforward:
 		<table class="table table-striped table-bordered" id="listView">
 			<thead>
 				<tr>
-					<!-- Columns can be mapped by their property name. Use "rdt-property" for retrieving them by their key -->
-					<!-- The CSS class rdt-is-orderable marks the column as orderable -->
-					<th rdt-property="name" class="rdt-is-orderable">Name</th>
-					<th rdt-property="count">Count</th>
+					<!-- Columns can be mapped by their property name. Use "sprat-datatable-property" for retrieving them by their key -->
+					<!-- The CSS class sprat-datatable-is-orderable marks the column as orderable -->
+					<th sprat-datatable-property="name" class="sprat-datatable-is-orderable">Name</th>
+					<th sprat-datatable-property="count">Count</th>
 					<!-- we can define our custom renderer which must be defined with sprat.ui.renderer.register('renderer_name', callback) -->
-					<th rdt-renderer="my_renderer">Datatype</th>
-					<th rdt-property="description">Description</th>
-					<!-- rdt-alias is used for columns which have no corresponding property -->
-					<th rdt-alias="actions">Aktionen</th>
+					<th sprat-datatable-renderer="my_renderer">Datatype</th>
+					<th sprat-datatable-property="description">Description</th>
+					<!-- sprat-datatable-alias is used for columns which have no corresponding property -->
+					<th sprat-datatable-alias="actions">Aktionen</th>
 				</tr>
 			</thead>
 			<tbody>
