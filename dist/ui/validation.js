@@ -206,8 +206,8 @@ sprat.ui.validation.errorDecorator.create = function (options) {
                 // org.springframework.data.rest.core.ValidationErrors: property
                 var field = error.field || error.property;
                 var message = error.message || error.defaultMessage;
-                // find the input by its name attribute in first place
-                var input = $form.find("input[name='" + field + "']");
+                // find the input (input=text, textarea, select) by its name attribute in first place
+                var input = $form.find(":input[name='" + field + "']");
 
                 // ctx = current message context
                 ctx = { field: field, message: message, $input: $(input) };
