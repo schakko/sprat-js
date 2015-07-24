@@ -36,7 +36,11 @@ Frontend:
 	var app = new sprat.app({ flavor: "laravel" });
 	sprat.ui.validation.errorDecorator.configure() // autoconfigure
 	// or manually by setting sprat.ui.validation.errorDecorator.configureLaravel();
-	 var errorDecorator = sprat.ui.validation.errorDecorator.create({ form: { selector: "#fixture-form" }});
+
+	var errorDecorator = sprat.ui.validation.errorDecorator.create({ form: { selector: "#fixture-form" }});
+	// or use as existing jQuery element: 
+	// 		var errorDecorator = sprat.ui.validation.errorDecorator.create($("#fixture-form"));
+
     sut.updateErrors(data.errors);
 	
 ### Configuration
@@ -44,18 +48,19 @@ You can overwrite the global configuration object of *sprat.ui.validation.errorD
 
 	{
 		form: {
-			selector: "form:first" // restrict formular if you have multiple forms on your site
+			selector: "form:first", // restrict formular if you have multiple forms on your site
+			$instance: null			// bind to instance
 		},
     	errors: {
-            transform: function(_errors), // transform error data to expected format
-			formatSummary: function(_errors, _unmappedErrors, _errorDecorator) // format summary which is put on top of the formular
-			formatInputError: function(_field, _message, _errorDecorator) // format field error appended to the input
+            transform: function(_errors), 										// transform error data to expected format
+			formatSummary: function(_errors, _unmappedErrors, _errorDecorator),	// format summary which is put on top of the formular
+			formatInputError: function(_field, _message, _errorDecorator)		// format field error appended to the input
 		},
 		execption: {
-			formatException: function(_exception, _errorDecorator) // format exception
+			formatException: function(_exception, _errorDecorator) 				// format exception
 		},
-		cssHasError: "has-error" // marks the div-container as errorneous
-		cssErrorText: "error-text" // error text content marker
+		cssHasError: "has-error" 	// marks the div-container as errorneous
+		cssErrorText: "error-text" 	// error text content marker
 	}
 
 ### Samples

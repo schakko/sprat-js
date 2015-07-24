@@ -6,7 +6,8 @@ sprat.ui.validation = sprat.ui.validation || {};
 sprat.ui.validation.errorDecorator = {
     defaultOptions: {
         form: {
-            selector: "form:first"
+            selector: "form:first",
+            $instance: null
         },
         errors: {
             /**
@@ -116,7 +117,8 @@ sprat.ui.validation.errorDecorator = {
 /**
  * Use ErrorDecorator for binding validation errors from the backend the input fields in the frontend.
  *
- * @param {object} options
+ * @param {object|jQuery} options
+ *  .form.$instance {jQuery object} use this element as form and not the selector
  *  .form.selector  {string} jQuery selector to select the bound form. By default, form:first is used
  *  .errors.transform {function} callback method to transform an error array into the expected format.
  *      By default ErrorDecorator expects validation errors based upon the result of Spring MVC/Data. Use app.flavor == "laraval"
@@ -127,6 +129,8 @@ sprat.ui.validation.errorDecorator = {
  *  .cssErrorContainer {string} CSS class for marking a container with error
  *  .cssHasError {string} CSS class
  *  .cssErrorText {string} CSS class
+ *
+ *  If the options parameters is of type jQuery, the form decorator is bound to the provided element.
  * @constructor
  */
 sprat.ui.validation.errorDecorator.create = function (options) {
@@ -135,9 +139,19 @@ sprat.ui.validation.errorDecorator.create = function (options) {
 
         options = options || {};
 
-        self.options = $.extend(true, sprat.ui.validation.errorDecorator.defaultOptions, options);
+        if (options instanceof jQuery) {
+            var instance = options;
 
-        var $form = $(self.options.form.selector);
+            options = {
+                form: {
+                    "$instance": instance
+                }
+            };
+        }
+
+        self.options = $.extend(true, sprat.ui.validation.errorDecorator.defaultOptions, options);
+		// resolve the form to bind by an selector or an existing jQuery instance. the instance has precedence.
+        self.$form = self.options.form.$instance || $(self.options.form.selector);
 
         /**
          * Remove all .has-error and .error-text elements from the canvas
@@ -145,8 +159,8 @@ sprat.ui.validation.errorDecorator.create = function (options) {
         self.clear = function () {
             var cssHasError = self.options.cssHasError;
 
-            $form.find("." + cssHasError).removeClass(cssHasError);
-            $form.find(".error-text").remove();
+            self.$form.find("." + cssHasError).removeClass(cssHasError);
+            self.$form.find(".error-text").remove();
         };
 
         /**
@@ -165,7 +179,7 @@ sprat.ui.validation.errorDecorator.create = function (options) {
         self.updateException = function (_exception) {
             self.clear();
 
-            $form.prepend(self.options.exception.formatException(_exception, self));
+            self.$form.prepend(self.options.exception.formatException(_exception, self));
         };
 
         /**
@@ -196,26 +210,36 @@ sprat.ui.validation.errorDecorator.create = function (options) {
         self.bindErrors = function (errors) {
             var i = 0, m = 0, error = null, ctx = null;
 
-            var r = { unmappedErrors: [], mappedErrors: [], length: errors.length, summary: "" };
+            var r = { 
+				unmappedErrors: [], 
+				mappedErrors: [], 
+				length: errors.length, 
+				summary: "" 
+			};
+			
+			// unmapped errors are errors which could not be bound to the field. they are displayed later on top of the form
             var unmappedErrors = [];
 
             for (i = 0, m = errors.length; i < m; i++) {
                 error = errors[i];
 
-                // org.springframework.validation.BindException: field
-                // org.springframework.data.rest.core.ValidationErrors: property
+				// Different field names:
+				// - Laravel: field
+                // - org.springframework.validation.BindException: field
+                // - org.springframework.data.rest.core.ValidationErrors: property
                 var field = error.field || error.property;
+				
                 var message = error.message || error.defaultMessage;
                 // find the input (input=text, textarea, select) by its name attribute in first place
-                var input = $form.find(":input[name='" + field + "']");
+                var input = self.$form.find(":input[name='" + field + "']");
 
                 // ctx = current message context
                 ctx = { field: field, message: message, $input: $(input) };
 
-                // input field could not found by its name
+                // input field could not found by its name attribute
                 if (ctx.$input.length === 0) {
                     // fall back to id
-                    ctx.$input = $($form.find("#" + field));
+                    ctx.$input = self.$form.find("#" + field);
 
                     if (ctx.$input.length === 0) {
                         r.unmappedErrors.push(ctx);
@@ -226,13 +250,17 @@ sprat.ui.validation.errorDecorator.create = function (options) {
                 r.mappedErrors.push(ctx);
 
                 var parentDiv = input.closest('.form-group');
+				
+				// mark parent div as erroneous
                 parentDiv.addClass(self.options.cssHasError);
+				// and add the error text
                 $(input).after(self.options.errors.formatInputError(field, message, self));
             }
 
+			// show unmapped errors if any
             if (errors.length > 0) {
                 r.summary = self.options.errors.formatSummary(errors, r.unmappedErrors, self);
-                $form.prepend("<div class='" + self.options.cssErrorText + " alert alert-danger validation-summary'>" + r.summary + "</div>");
+                self.$form.prepend("<div class='" + self.options.cssErrorText + " alert alert-danger validation-summary'>" + r.summary + "</div>");
             }
 
             return r;
