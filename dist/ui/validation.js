@@ -7,9 +7,37 @@ sprat.ui.validation.errorDecorator = {
     defaultOptions: {
         form: {
             selector: "form:first",
-            $instance: null
+            $instance: null,
+            /**
+             * Resolve input fields by their name. By default, the name attribute is looked up and then falls back to the ID attribute.
+             * @param _field
+             * @param $form
+             * @return {jQuery}
+             */
+            resolveInput: function (_field, $form) {
+                var $input = $form.find(":input[name='" + _field + "']");
+
+                if ($input.length === 0) {
+                    $input = $form.find("#" + _field);
+                }
+
+                if ($input.length === 0) {
+                    return null;
+                }
+
+                return $input;
+            }
         },
         errors: {
+            /**
+             * Display the summary inside the formular
+             * @param _content
+             * @param $form
+             * @param _options
+             */
+            displaySummary: function(_content, $form, _options) {
+                $form.prepend(_content);
+            },
             /**
              * Method to transform an object to the expected error object
              * @param {array} _errors
@@ -107,7 +135,7 @@ sprat.ui.validation.errorDecorator = {
     /**
      * Configure Spring transformer
      */
-    configureSpring: function() {
+    configureSpring: function () {
         sprat.ui.validation.errorDecorator.defaultOptions.errors.transform = function (_errors) {
             return _errors;
         };
@@ -134,23 +162,25 @@ sprat.ui.validation.errorDecorator = {
  * @constructor
  */
 sprat.ui.validation.errorDecorator.create = function (options) {
-    var r = function (options) {
+    function instance(options) {
         var self = this;
 
         options = options || {};
 
         if (options instanceof jQuery) {
-            var instance = options;
+            var useInstance = options;
 
             options = {
                 form: {
-                    "$instance": instance
+                    "$instance": useInstance
                 }
             };
         }
 
-        self.options = $.extend(true, sprat.ui.validation.errorDecorator.defaultOptions, options);
-		// resolve the form to bind by an selector or an existing jQuery instance. the instance has precedence.
+        // let the provided options override the default options but don't touch the original default options
+        self.options = $.extend(true, $.extend(true, [], sprat.ui.validation.errorDecorator.defaultOptions), options);
+
+        // resolve the form to bind by an selector or an existing jQuery instance. the instance has precedence.
         self.$form = self.options.form.$instance || $(self.options.form.selector);
 
         /**
@@ -210,62 +240,59 @@ sprat.ui.validation.errorDecorator.create = function (options) {
         self.bindErrors = function (errors) {
             var i = 0, m = 0, error = null, ctx = null;
 
-            var r = { 
-				unmappedErrors: [], 
-				mappedErrors: [], 
-				length: errors.length, 
-				summary: "" 
-			};
-			
-			// unmapped errors are errors which could not be bound to the field. they are displayed later on top of the form
+            var r = {
+                unmappedErrors: [],
+                mappedErrors: [],
+                length: errors.length,
+                summary: ""
+            };
+
+            // unmapped errors are errors which could not be bound to the field. they are displayed later on top of the form
             var unmappedErrors = [];
 
             for (i = 0, m = errors.length; i < m; i++) {
                 error = errors[i];
 
-				// Different field names:
-				// - Laravel: field
+                // Different field names:
+                // - Laravel: field
                 // - org.springframework.validation.BindException: field
                 // - org.springframework.data.rest.core.ValidationErrors: property
                 var field = error.field || error.property;
-				
+
                 var message = error.message || error.defaultMessage;
                 // find the input (input=text, textarea, select) by its name attribute in first place
-                var input = self.$form.find(":input[name='" + field + "']");
+
+                input = self.options.form.resolveInput(field, self.$form);
 
                 // ctx = current message context
-                ctx = { field: field, message: message, $input: $(input) };
+                ctx = {field: field, message: message, $input: $(input)};
 
                 // input field could not found by its name attribute
-                if (ctx.$input.length === 0) {
-                    // fall back to id
-                    ctx.$input = self.$form.find("#" + field);
-
-                    if (ctx.$input.length === 0) {
-                        r.unmappedErrors.push(ctx);
-                        continue;
-                    }
+                if (!input) {
+                    r.unmappedErrors.push(ctx);
+                    continue;
                 }
 
                 r.mappedErrors.push(ctx);
 
                 var parentDiv = input.closest('.form-group');
-				
-				// mark parent div as erroneous
+
+                // mark parent div as erroneous
                 parentDiv.addClass(self.options.cssHasError);
-				// and add the error text
+                // and add the error text
                 $(input).after(self.options.errors.formatInputError(field, message, self));
             }
 
-			// show unmapped errors if any
+            // show unmapped errors if any
             if (errors.length > 0) {
                 r.summary = self.options.errors.formatSummary(errors, r.unmappedErrors, self);
-                self.$form.prepend("<div class='" + self.options.cssErrorText + " alert alert-danger validation-summary'>" + r.summary + "</div>");
+                var summary = "<div class='" + self.options.cssErrorText + " alert alert-danger validation-summary'>" + r.summary + "</div>";
+                self.options.errors.displaySummary(summary, self.$form, self.options);
             }
 
             return r;
         };
-    };
+    }
 
-    return new r(options);
+    return new instance(options);
 };

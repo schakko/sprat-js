@@ -49,9 +49,11 @@ You can overwrite the global configuration object of *sprat.ui.validation.errorD
 	{
 		form: {
 			selector: "form:first", // restrict formular if you have multiple forms on your site
-			$instance: null			// bind to instance
+			$instance: null,		// bind to instance
+			resolveInput: function(_field, $form)								// resolve the input field. By default the name and ID attributes are used
 		},
     	errors: {
+			displaySummary: function(_content, $form, _options),				// display the error summary. By default the summary is prepended to the form
             transform: function(_errors), 										// transform error data to expected format
 			formatSummary: function(_errors, _unmappedErrors, _errorDecorator),	// format summary which is put on top of the formular
 			formatInputError: function(_field, _message, _errorDecorator)		// format field error appended to the input
