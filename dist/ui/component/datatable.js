@@ -60,7 +60,14 @@ sprat.ui.component.dataTable = function(_defaults) {
 		};
 		
 		var instance = {
+			/**
+			 * base URL for all REST queries
+			 */
 			restEndpoint: null,
+			/**
+			 * Array with URLs which can be used for altering the next GET request
+			 */
+			endpointQueue: [],
 			initialized: false,
 			lastReceivedData: null,
 			options: {
@@ -131,8 +138,9 @@ sprat.ui.component.dataTable = function(_defaults) {
 				}
 
 				var request = $.extend(true, defaultRequest, instance.options.requestParameters);
-
-				$.restGet(instance.restEndpoint, request, function(afterReceive) {
+				var endpoint = self.getEndpoint();
+				
+				$.restGet(endpoint, request, function(afterReceive) {
 					var r = instance.convertResponseToDatatable(afterReceive, draw);
 					callback(r);
 				});
@@ -158,6 +166,8 @@ sprat.ui.component.dataTable = function(_defaults) {
 			}
 			
 			instance.table = _table;
+			_table.data("sprat-datatable", self);
+			
 			return self;
 		};
 		
@@ -251,7 +261,26 @@ sprat.ui.component.dataTable = function(_defaults) {
 		};
 		
 		/**
+		 * Execute a reload of the underlying datatable. If it is not intialized yet, it gets initialized
+		 */
+		self.reload = function() {
+			if (!instance.initialized) {
+				throw "DataTable not initialized. You must call build() before changing the source";
+			}
+
+			// underlying dataTable has not been initialized
+			if (!instance.dataTable) {
+				self.initDataTable();
+				// no need to call .ajax.reload() b/c it is already done through initializing.
+			}
+			else {
+				self.dataTable().ajax.reload();
+			}
+		};
+		
+		/**
 		 * Change the REST endpoint and do a reload of the backed table.
+		 * If the underlying DataTable is not already initialized, it will get initialized by calling self.initDataTable().
 		 * @param {string} source URL
 		 * @return ComponentDataTable
 		 */
@@ -262,11 +291,64 @@ sprat.ui.component.dataTable = function(_defaults) {
 			
 			// self.dataTable().ajax.url(...) would change our callback handler.
 			instance.restEndpoint = source;
-			self.dataTable().ajax.reload();
+			
+			self.reload();
+		};
+		
+		/**
+		 * Enqueues a new endpoint path which will be executed for the next request
+		 * @param {string} source URL
+		 * @param {boolean} execute reload instantly
+		 * @return ComponentDataTable
+		 */
+		self.enqueueEndpoint = function(source, instantReload) {
+			instance.endpointQueue.push(source);
+			
+			if (instantReload) {
+				self.reload();
+			}
+			
+			return self;
+		};
+		
+		/**
+		 * Return the next executable endpoint
+		 * @return string
+		 */
+		self.getEndpoint = function() {
+			if (instance.endpointQueue.length > 0) {
+				return instance.endpointQueue.pop();
+			}
+			
+			// fallback to the default endpoint
+			return instance.restEndpoint;
+		};
+		
+		/**
+		* Return instance and its configuration
+		* @return ComponentDataTable
+		*/
+		self.config = function() {
+			return instance;
+		};
+		
+		/**
+		 * Initialize the datatable. Throw an error if it is already initialized
+		 * @return ComponentDataTable
+		 */
+		self.initDataTable = function() {
+			if (instance.dataTable) {
+				throw "DataTable of this instance is already initialized";
+			}
+			
+			// create datatable instance
+			instance.dataTable = instance.table.dataTable(instance.options.datatable);
+			return self;
 		};
 		
 		/**
 		 * Build datatable
+		 * @param {boolean} initialize if given and false then the datatable is not initialized. If this option is missed, the datatable gets initialized automatically
 		 * @return ComponentDataTable
 		 */
 		self.build = function() {
@@ -415,8 +497,16 @@ sprat.ui.component.dataTable = function(_defaults) {
 				throw "sprat.ui.component.dataTable requires DataTables (https://www.datatables.net/).";
 			}
 
-			// create datatable instance
-			instance.dataTable = instance.table.dataTable(instance.options.datatable);
+			var initializeDataTable = true;
+			
+			// if first parameter is passed (initialized datatable: boolean), load it
+			if (arguments.length > 0) {
+				initializeDataTable = arguments[0];
+			}
+			
+			if (initializeDataTable) {
+				self.initDataTable();
+			}
 			
 			return self;
 		};

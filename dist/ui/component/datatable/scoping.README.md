@@ -1,5 +1,5 @@
-﻿sprat.ui.component.scoping.js
-=============================
+﻿sprat.ui.component.dataTable.scopeable
+======================================
 Enable scoping for sprat.ui.component.dataTable.
 Scoping is technique to restrict a result set for given specifications.
 
@@ -18,7 +18,7 @@ The generic usage is straightforward:
 		<!-- add Sprat dependencies -->
 		<script src="$PATH/dist/wrestle.js"></script>
 		<script src="$PATH/dist/ui/component/datatable.js"></script>
-		<script src="$PATH/dist/ui/component/scoping.js"></script>
+		<script src="$PATH/dist/ui/component/datatable/scoping.js"></script>
 	</head>
 	
 	<body>
@@ -64,5 +64,6 @@ The generic usage is straightforward:
 					})
 					// important: we pass "false" to the build() method, to suppress the initial loading of the data
 					.build(false);
-
-			var decorateScoping = sprat.ui.component.scoping(datatable);
+			
+			var decorateScoping = sprat.ui.component.dataTable.scopeable(datatable).init();
+		</script>

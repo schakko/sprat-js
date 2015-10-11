@@ -3,19 +3,20 @@ var sprat = sprat || {};
 
 sprat.ui = sprat.ui || {};
 sprat.ui.component = sprat.ui.component || {};
+sprat.ui.component.dataTable = sprat.ui.component.dataTable || {};
 
 /**
  * Enable custom scopes for sprat.ui.component.dataTable
  * @param {object} dataTable sprat.ui.component.dataTable
  * @param {object} _config optional config
  */
-sprat.ui.component.scoping = function(dataTable, _config) {
-	var ComponentScoping = function(dataTable, _config) {
+sprat.ui.component.dataTable.scopeable = function(dataTable, _config) {
+	var DataTableDecoratorScopeable = function(dataTable, _config) {
 		var self = this;
 		
 		// expect sprat.ui.component.dataTable. It is not possible to determine the correct type, b/c it is anonymous.
 		if (!dataTable || !dataTable.config) {
-			throw "sprat.ui.component.scoping requires sprat.ui.component.dataTable instance as first argument";
+			throw "sprat.ui.component.dataTable.scopeable requires sprat.ui.component.dataTable instance as first argument";
 		}
 	
 		var defaults = {
@@ -30,14 +31,15 @@ sprat.ui.component.scoping = function(dataTable, _config) {
 				url: undefined,
 				/**
 				 * Builder to create a endpoint URL for a given scope.
-				 * @param {string} scope if not empty, the ?scope= parameter is appended to the .endpoint.url parameter
+				 * @param {string} scope if not empty, the ?scope= parameter is set for the dataTable by using .withRequestParameters
+				 * @param {object} dataTable
 				 * @param {object} config configuration
 				 * @return string
 				 */
-				builder: function (scope, config) {
-					if (scope) {
-						return config.endpoint.url + "?scope=" + scope;
-					}
+				builder: function (scope, dataTable, config) {
+					dataTable.withRequestParameters({
+						"scope": scope
+					});
 					
 					return config.endpoint.url;
 				}
@@ -133,6 +135,14 @@ sprat.ui.component.scoping = function(dataTable, _config) {
 		};
 		
 		/**
+		 * Find the widget with the current scope
+		 * @return jQuery item or null
+		 */
+		self.findCurrentWidget = function() {
+			return self.findScopeWidget(self.currentScope);
+		};
+		
+		/**
 		 * Enable the scope with the given name. If the scope is available, the widget scope gets activated. All other scopes gets deactivated. The REST endpoint of the connected dataTable is updated and a reload is triggered.
 		 * @param {string} scope name of scope to activate, can be empty or undefined to identify the default scope. If the scope does not exist, an exception is thrown.
 		 * The event "scope-activated[name_of_scope]" is triggered.
@@ -158,17 +168,24 @@ sprat.ui.component.scoping = function(dataTable, _config) {
 			// populate event to make interactions possible
 			$(this).trigger("scope-activated", [ self.currentScope ]);
 			
+			self.dataTable.config().table.trigger("scope-activated", [ self.currentScope ]);
+			
 			// update the endpoint of the underlying data
-			self.dataTable.updateEndpoint(self.config.endpoint.builder(self.currentScope, self.config));
+			self.dataTable.updateEndpoint(self.config.endpoint.builder(self.currentScope, self.dataTable, self.config));
 		};
 		
-		// bind widgets
-		$(self.config.widget.selector).click(function() {
-			self.enableScope($(this).attr('sprat-query-scope'));
-		});
-		
-		self.enableScope(self.requestedScope());
+		self.init = function() {
+			// bind widgets
+			$(self.config.widget.selector).click(function() {
+				self.enableScope($(this).attr('sprat-query-scope'));
+			});
+			
+			self.enableScope(self.requestedScope());
+			self.dataTable.config().table.data("sprat-datatable-scopeable", self);
+			
+			return self;
+		};
 	};
 	
-	return new ComponentScoping(dataTable, _config);
+	return new DataTableDecoratorScopeable(dataTable, _config);
 };
