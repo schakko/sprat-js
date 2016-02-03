@@ -1,0 +1,46 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+		<script type="text/javascript">
+		var app = angular.module('app', 
+			[ 
+				'treePath', 
+				'treeModule' 
+			], function() {
+		});
+		</script>
+		<script src="tree-open.directive.js"></script>
+		<script src="tree-path.directive.js"></script>
+	</head>
+	<style type="text/css">
+		.active {
+			background-color: green;
+		}
+	</style>
+	<body ng-app="app">
+		<ul>
+			<li><span  tree-path="a">A</span>
+				<ul>
+					<li tree-path="a/1">A #1</li>
+				</ul>
+			</li>
+			<li tree-path="b">B</li>
+			<li><span tree-path="c">C</span>
+				<ul>
+					<li><span tree-path="c/1">C #1</span></li>
+					<li><span tree-path="c/2">C #2</span></li>
+				</ul>
+			</li>
+		</ul>
+		
+		<!-- open by default -->
+		<tree-open path="c/2" />
+		
+		<button ng-click="$root.$broadcast('open-tree-path', 'a')">A with sub children</button>
+		<button ng-click="$root.$broadcast('open-tree-path', 'b')">B</button>
+		<button ng-click="$root.$broadcast('open-tree-path', 'c/2')">C #2 (default)</button>
+	</body>
+	<script type="text/javascript">
+	app.run();
+	</script>
+</html>

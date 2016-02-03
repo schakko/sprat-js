@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+	<packaging>jar</packaging>
+	<groupId>org.webjars</groupId>
+	<artifactId>sprat-js</artifactId>
+	<version>1.1.0-SNAPSHOT</version>
+	<name>sprat-js</name>
+	<description>Create WebJar for sprat-js and sprat-angular</description>
+	<url>http://www.schakko.de</url>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<destDir>${project.build.outputDirectory}/META-INF/resources/webjars/${project.artifactId}/${project.version}</destDir>
+		<requirejs>
+			{
+				"paths": {
+					"jquery": "jquery"
+				},
+				"shim": {
+					"jquery": { "exports": "$" }
+				}
+			}
+		</requirejs>
+		<phantomjs-maven-plugin.version>0.7</phantomjs-maven-plugin.version>
+	</properties>
+	<developers>
+		<developer>
+			<id>ckl</id>
+			<name>Christopher Klein</name>
+			<email>me@schakko.de</email>
+		</developer>
+		<developer>
+			<id>sfi</id>
+			<name>Stefan Fielder</name>
+			<email>sfi@neos-it.de</email>
+		</developer>
+		<developer>
+			<id>swe</id>
+			<name>Sebastian Weinert</name>
+			<email>swe@neos-it.de</email>
+		</developer>
+	</developers>
+	<dependencies>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>3.3.4</version>
+		</dependency>
+		<!-- required dependencies for integration tests -->
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>angularjs</artifactId>
+			<version>1.4.9</version>
+		</dependency>
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>jquery</artifactId>
+			<version>1.12.0</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<!-- point resources directory to tmp dir; we don't need the original resources copied to default destination -->
+				<directory>${basedir}/src/main/resources-tmp</directory>
+			</resource>
+		</resources>
+		<plugins>
+			<!-- run 'mvn package' to execute Jasmine only -->
+			<!-- required plug-in for jasmine-maven-plugin -->
+			<plugin>
+				<groupId>com.github.klieber</groupId>
+				<artifactId>phantomjs-maven-plugin</artifactId>
+				<version>${phantomjs-maven-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<!-- goal is disabled b/c we execute the build with Grunt through grunt-maven-plugin -->
+							<!-- <goal>install</goal> -->
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<version>1.9.2</version>
+				</configuration>
+			</plugin>
+			<!-- execute Jasmine tests -->
+			<plugin>
+				<groupId>com.github.searls</groupId>
+				<artifactId>jasmine-maven-plugin</artifactId>
+				<version>2.1</version>
+				<executions>
+					<execution>
+						<goals>
+							<!-- goal is disabled b/c we execute the build with Grunt through grunt-maven-plugin -->
+							<!-- <goal>test</goal> -->
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<webDriverClassName>org.openqa.selenium.phantomjs.PhantomJSDriver</webDriverClassName>
+					<webDriverCapabilities>
+						<capability>
+							<name>phantomjs.binary.path</name>
+							<!-- ${phantomjs.binary} is pre-assigned through phantomjs-maven-plugin -->
+							<value>${phantomjs.binary}</value>
+						</capability>
+					</webDriverCapabilities>
+					<jsSrcDir>${basedir}/src/main/resources/js</jsSrcDir>
+					<jsTestSrcDir>${basedir}/src/test/resources/js</jsTestSrcDir>
+					<preloadSources>
+						<!-- the dependencies are only required for the Maven build and not for Grunt/Jasmine task -->
+						<source>/webjars/angularjs/1.4.9/angular.js</source>
+						<source>/webjars/jquery/1.12.0/jquery.js</source>
+						<!-- custom JavaScript -->
+						<source>spec/vendor/jasmine-jquery.js</source>
+					</preloadSources>
+				</configuration>
+			</plugin>
+			<!-- run mvn grunt:npm grunt:grunt to install dependencies and run the build process -->
+			<plugin>
+				<groupId>pl.allegro</groupId>
+				<artifactId>grunt-maven-plugin</artifactId>
+				<version>1.5.0</version>
+				<configuration>
+					<!-- relative to src/main/webapp/, default: static -->
+					<jsSourceDirectory>${basedir}</jsSourceDirectory>
+					<!-- example options usage to get verbose output in logs -->
+					<gruntOptions>
+						<gruntOption>--verbose</gruntOption>
+					</gruntOptions>
+					<!-- example npm install env variable -->
+					<npmEnvironmentVar>
+						<PHANTOMJS_CDNURL>http://cnpmjs.org/downloads</PHANTOMJS_CDNURL>
+					</npmEnvironmentVar>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>create-resources</goal>
+							<goal>npm</goal>
+							<goal>grunt</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- copy produced JavaScript files to the target/classes/META-INF... directory -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<version>1.7</version>
+				<executions>
+					<execution>
+						<!-- Phase must be prepare-package. Phase "package" already zips the JAR -->
+						<phase>prepare-package</phase>
+						<goals><goal>run</goal></goals>
+						<configuration>
+							<target>
+								<copy todir="${destDir}">
+									<fileset dir="${basedir}/dist"/>
+								</copy>
+							</target>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+</project>

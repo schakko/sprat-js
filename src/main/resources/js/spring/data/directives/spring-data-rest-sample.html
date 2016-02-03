@@ -1,0 +1,88 @@
+<html>
+	<head>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
+		<script src="spring-data-rest.directive.js"></script>
+		<script src="spring-data-rest-sort.directive.js"></script>
+		<script src="spring-data-rest-pagination.directive.js"></script>
+		<script type="text/javascript">
+		var app = angular.module('app', ['springDataRest', 'springDataRestSort', 'springDataRestPagination'], function() {
+		});
+		</script>
+	</head>
+	<style type="text/css">
+	</style>
+	<body ng-app="app" ng-controller="TestController">
+		<spring-data-rest promise-factory="promiseFactory" items="items">
+		<table>
+			<thead>
+				<tr>
+					<th spring-data-rest-sort="true" property="name" default-direction="asc">Name <a href="#" ng-click="toggleDirection()">Sortieren</a></th>
+					<th>Firstname</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr ng-repeat="item in items">
+					<td>{{item.name}}</td>
+					<td>{{item.firstname}}</td>
+				</tr>
+			</tbody>
+		</table>
+		AJAX-Status: {{text}}<br />
+		Anfrage: {{parameters}}<br />
+		<spring-data-rest-pagination />
+		</spring-data-rest>
+	</body>
+	<script type="text/javascript">
+	app.controller('TestController', [ '$scope', '$q', function($scope, $q) {
+		$scope.items = [];
+		$scope.collection = {};
+		$scope.text = "---";
+		$scope.parameters = {};
+		
+		$scope.$on('spring-data-rest.begin-fetch', function() {
+			$scope.text = "Lade Daten";
+		});
+
+		$scope.$on('spring-data-rest.end-fetch', function() {
+			$scope.text = "Daten geladen!"
+		});
+		
+		$scope.promiseFactory = function(parameters) {
+			$scope.parameters = parameters;
+			
+			// simulate AJAX callback
+			var defer = $q.defer();
+			var promise = defer.promise;
+			
+			setTimeout(function() {
+				// Spring Data REST result
+				defer.resolve({ 
+					_embedded: {
+						data: [
+							{
+								name: "klein",
+								firstname: "christopher"
+							},
+							{
+								name: "fiedler",
+								firstname: "stefan",
+							}
+						]
+					},
+					page: {
+						totalPages: 1
+					}
+				});
+			}, 1000 /** delay */);
+			
+			return promise;
+		};
+		
+		activate();
+		
+		function activate() {
+		};
+	}]);
+	app.run();
+	</script>
+</html>
