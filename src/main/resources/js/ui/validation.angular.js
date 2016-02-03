@@ -41,7 +41,7 @@ sprat.ui.validation.resetErrors = function($form, $errors, _fieldMapping) {
 sprat.ui.validation.parseErrors = function($form, $errors, data, _fieldMapping) {
 	_fieldMapping = _fieldMapping || [];
 	
-	ui.resetErrors($form, $errors, _fieldMapping);
+	sprat.ui.validation.resetErrors($form, $errors, _fieldMapping);
 	
 	var error = null, field = null, code = null, message = null;
 	
