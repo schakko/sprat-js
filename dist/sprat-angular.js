@@ -1,8 +1,16 @@
+// retrieve or create the module namespace
+var module = undefined || module;
+
+try {
+	module = angular.module('springDataRest');
+}catch (ex) {
+	module = angular.module('springDataRest', []);
+}
+
 /**
  * Directive for connecting a list or table with a Spring Data REST backend
  */
-angular.module('springDataRest', [])
-	.directive('springDataRest', function() {
+module.directive('springDataRest', function() {
 	return {
 		restrict : 'E', 		// element tag only
 		transclude : true, 		// spring-data-rest is a container
@@ -89,25 +97,20 @@ angular.module('springDataRest', [])
 			 * default factory method for creating a new promise if only a
 			 * custom URL is specified without a custom finder
 			 * 
-			 * @param page
-			 *            page to load, starting with 0
-			 * @param size
-			 *            numeric with size of page
-			 * @param sort
-			 *            optional array with elements to sort
-			 * @param customParameters
-			 *            optional array with parameters
+			 * @param queryParameters object with keys for sort, size, page
+			 * @param httpParameters custom HTTP parameter for $http.*
 			 */
-			var defaultPromiseFactory = function(sortParameters, customParameters) {
+			var defaultPromiseFactory = function(queryParameters, httpCustomParameters) {
 				if (!$scope.url) {
 					throw "You must at least provide url='' parameter or a find='' callback with a method reference";
 				}
 
-				angular.merge(opts, sortParameters || {});
+				var httpCustomParameters = httpCustomParameters || {};
+				httpCustomParameters.params = {};
+				
+				angular.merge(httpCustomParameters.params, queryParameters);
 
-				return $http.get($scope.url, {
-					params : opts
-				}).then(function(response) {
+				return $http.get($scope.url, httpCustomParameters).then(function(response) {
 					return response.data;
 				});
 			};
@@ -182,12 +185,10 @@ angular.module('springDataRest', [])
 
 				// initalize promise
 				promiseFactory(requestParameters).then(function(data) {
-					var hateoas = hateoas || undefined;
-					
 					$scope.refItems = [];
 					$scope.refCollection = {};
 
-					$scope.refItems = (hateoas) ? util.rest.collection(data) : data._embedded.data;
+					$scope.refItems = (typeof($hateoas) !== 'undefined') ? $hateoas.embedded(data) : data._embedded.data;
 					$scope.refCollection = data;
 
 					$scope.pages = [];
@@ -215,11 +216,19 @@ angular.module('springDataRest', [])
 		template : '<div ng-transclude></div>'
 	}
 });
+// retrieve or create the module namespace
+var module = undefined || module;
+
+try {
+	module = angular.module('springDataRest');
+}catch (ex) {
+	module = angular.module('springDataRest', []);
+}
+
 /**
  * Default directive for a simple pagination
  */
-angular.module('springDataRestPagination', [])
-	.directive('springDataRestPagination', function() {
+module.directive('springDataRestPagination', function() {
 	return {
 		require: '^springDataRest',
 		transclude: false, 	// disable inner content
@@ -232,6 +241,15 @@ angular.module('springDataRestPagination', [])
 					+ "<span ng-show='$parent.refCollection.page.totalPages'>| <a href='#' ng-click='$parent.last()'>Letzte Seite</a></span>"
 	};
 });
+// retrieve or create the module namespace
+var module = undefined || module;
+
+try {
+	module = angular.module('springDataRest');
+}catch (ex) {
+	module = angular.module('springDataRest', []);
+}
+
 /**
  * Enables the sorting of columns.
  * <br />
@@ -239,8 +257,7 @@ angular.module('springDataRestPagination', [])
  * 	<span ng-click="toggleDirection()" spring-data-rest-sort="sdr" property="name" default-direction="desc" is-default="true">Name</span>
  * </pre>
  */
-angular.module('springDataRestSort', [])
-	.directive('springDataRestSort', function() {
+module.directive('springDataRestSort', function() {
 	return {
 		restrict: 'A', 		// attribute tag only; using E with transclude scope does not allow the access to toggleDirection() inside the directive
 		scope: true, 		// activate access to parent scope
@@ -434,6 +451,15 @@ sprat.ui.validation.parseErrors = function($form, $errors, data, _fieldMapping) 
 		}
 	}
 };
+// retrieve or create the module namespace
+var module = undefined || module;
+
+try {
+	module = angular.module('tree');
+}catch (ex) {
+	module = angular.module('tree', []);
+}
+
 /**
  * Broadcasts the message to open the path structure.<br />
  * Usage:
@@ -443,8 +469,7 @@ sprat.ui.validation.parseErrors = function($form, $errors, data, _fieldMapping) 
  * </pre>
  * 
  */
-angular.module('treeOpen', [])
-	.directive('treeOpen', function() {
+module.directive('treeOpen', function() {
 	return {
 		restrict : 'E',
 		scope : {
@@ -455,12 +480,20 @@ angular.module('treeOpen', [])
 		}
 	};
 });
+// retrieve or create the module namespace
+var module = undefined || module;
+
+try {
+	module = angular.module('tree');
+}catch (ex) {
+	module = angular.module('tree', []);
+}
+
 /**
  * Sets a menu tree path of a given element. If the broadcast "open-tree-path" is received, 
  * the directive decides whether to add the CSS class "active" or remove it.
  */
-angular.module('treePath', [])
-	.directive('treePath', function() {
+module.directive('treePath', function() {
 	return {
 		restrict : 'A',
 		scope : {

@@ -1,0 +1,8 @@
+.settings
+target
+*.iml
+.classpath
+.project
+node_modules/*
+target/*
+target-grunt/*

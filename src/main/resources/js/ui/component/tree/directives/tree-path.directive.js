@@ -1,9 +1,17 @@
-﻿/**
+﻿// retrieve or create the module namespace
+var module = undefined || module;
+
+try {
+	module = angular.module('tree');
+}catch (ex) {
+	module = angular.module('tree', []);
+}
+
+/**
  * Sets a menu tree path of a given element. If the broadcast "open-tree-path" is received, 
  * the directive decides whether to add the CSS class "active" or remove it.
  */
-angular.module('treePath', [])
-	.directive('treePath', function() {
+module.directive('treePath', function() {
 	return {
 		restrict : 'A',
 		scope : {

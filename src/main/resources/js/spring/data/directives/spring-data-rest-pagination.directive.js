@@ -1,8 +1,16 @@
-﻿/**
+﻿// retrieve or create the module namespace
+var module = undefined || module;
+
+try {
+	module = angular.module('springDataRest');
+}catch (ex) {
+	module = angular.module('springDataRest', []);
+}
+
+/**
  * Default directive for a simple pagination
  */
-angular.module('springDataRestPagination', [])
-	.directive('springDataRestPagination', function() {
+module.directive('springDataRestPagination', function() {
 	return {
 		require: '^springDataRest',
 		transclude: false, 	// disable inner content

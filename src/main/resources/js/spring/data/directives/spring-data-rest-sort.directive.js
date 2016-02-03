@@ -1,12 +1,20 @@
-﻿/**
+﻿// retrieve or create the module namespace
+var module = undefined || module;
+
+try {
+	module = angular.module('springDataRest');
+}catch (ex) {
+	module = angular.module('springDataRest', []);
+}
+
+/**
  * Enables the sorting of columns.
  * <br />
  * usage: <pre>
  * 	<span ng-click="toggleDirection()" spring-data-rest-sort="sdr" property="name" default-direction="desc" is-default="true">Name</span>
  * </pre>
  */
-angular.module('springDataRestSort', [])
-	.directive('springDataRestSort', function() {
+module.directive('springDataRestSort', function() {
 	return {
 		restrict: 'A', 		// attribute tag only; using E with transclude scope does not allow the access to toggleDirection() inside the directive
 		scope: true, 		// activate access to parent scope
