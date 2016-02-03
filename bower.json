@@ -1,7 +1,0 @@
-{
-  "name": "sprat-js",
-  "version": "1.0.10",
-  "main": "dist/app.js",
-  "dependencies": {
-  }
-}
