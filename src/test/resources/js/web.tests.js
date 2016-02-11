@@ -38,6 +38,16 @@ describe("sprat.web.hateoas.relation", function () {
         expect($hateoas.relation(object, '$rel')).toEqual('$url');
     });
 
+    it("a links relation can be found inside an object", function () {
+        var object = {
+            _links: {
+                '$rel': {href: '$url'}
+            }
+        };
+
+        expect($hateoas.relation(object, '$rel')).toEqual('$url');
+    });
+
     it("a _links relation can be found", function () {
         var object = {
             _links: {
