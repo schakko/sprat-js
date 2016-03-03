@@ -44,7 +44,7 @@ sprat.ui.batchRemove = function($items, $service, $opts) {
 	
 	// ask for confirmation
 	if (toRemove.length <= 0 || !opts.confirm(toRemove)) {
-		return false;
+		return 0;
 	}
 
 	for (var i = 0, m = toRemove.length; i < m; i++) {
@@ -56,5 +56,5 @@ sprat.ui.batchRemove = function($items, $service, $opts) {
 		});
 	}
 	
-	return true;
+	return toRemove.length;
 };
