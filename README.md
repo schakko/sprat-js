@@ -68,6 +68,13 @@ Run
 and you are fine. The pom.xml contains dedicated plug-in configurations for Jasmine and PhantomJS but they are disabled. It is much easier to execute Grunt through Maven which is done by the command line above.
 Please note that you - if you want to use the jasmine-maven-plugin - **need at least Maven 3.1** for executing the Jasmine tests!
 
+## Releasing a new version
+You have to upgrade the following files
+
+ - `pom.xml`: *version* tag
+ - `package.json`: *version* attribute
+ - `bower.json`: *version* attribute
+ 
 ## Deployment
 ### bower.io
 
