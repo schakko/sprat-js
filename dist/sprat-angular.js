@@ -201,7 +201,7 @@ module.directive('springDataRest', function() {
 					}
 
 					// notify child element
-					$scope.$root.$broadcast('spring-data-rest.end-fetch', page, $scope.refItems);
+					$scope.$root.$broadcast('spring-data-rest.end-fetch', page, $scope.refItems.length, $scope.refItems);
 				});
 			};
 
