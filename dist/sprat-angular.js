@@ -202,6 +202,7 @@ module.directive('springDataRest', function() {
 
 					// notify child element
 					$scope.$root.$broadcast('spring-data-rest.end-fetch', page, $scope.refItems.length);
+					$scope.$root.$broadcast('spring-data-rest.first-entry', $scope.refItems[0]);
 				});
 			};
 
@@ -371,7 +372,7 @@ sprat.ui.batchRemove = function($items, $service, $opts) {
 	
 	// ask for confirmation
 	if (toRemove.length <= 0 || !opts.confirm(toRemove)) {
-		return false;
+		return 0;
 	}
 
 	for (var i = 0, m = toRemove.length; i < m; i++) {
@@ -383,7 +384,7 @@ sprat.ui.batchRemove = function($items, $service, $opts) {
 		});
 	}
 	
-	return true;
+	return toRemove.length;
 };
 
 var sprat = sprat || {};
