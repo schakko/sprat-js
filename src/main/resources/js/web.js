@@ -115,6 +115,12 @@ sprat.web = {
 							rel = name;
 							href = current[name].href;
 						}
+						// in case of
+						// object: {'_links' :  { 'foo' : { 'href' : '/foo/bar' }}}
+						else if (idx == name && current.href) {
+							rel = idx;
+							href = current.href;
+						}
 					}
 				}
 
