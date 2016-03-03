@@ -15,7 +15,7 @@ describe("sprat.ui (AngularJS)", function () {
 			},
 		};
 
-		expect(sprat.ui.batchRemove($items, $service, { confirm: function() { return true; } })).toEqual(true);
+		expect(sprat.ui.batchRemove($items, $service, { confirm: function() { return true; } })).toEqual(2);
         expect(sprat.util.array.removeById).toHaveBeenCalledTimes(2);
         var callArgs = sprat.util.array.removeById.calls.first().args;
 		console.log(callArgs);
