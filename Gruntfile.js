@@ -7,11 +7,12 @@ module.exports = function( grunt ) {
 		jasmine: {
 			src: [ "src/main/resources/js/**/**.js" ],
 			options: {
-				specs: [ "src/test/resources/js/**/*.js" ],
+				specs: [ "src/test/resources/js/**/**.js"],
 				vendor: [ 
 					"https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js",
+					"https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular-mocks.js",
 					"src/main/resources/js/vendor/*.js", 
-					"src/test/resources/js/vendor/jquery-1.12.0.js" 
+					"src/test/resources/js/vendor/jquery-1.12.0.js",
 				],
 				summary: false
 			}
@@ -51,6 +52,7 @@ module.exports = function( grunt ) {
                     'src/main/resources/js/ui/validation.angular.js',
                     'src/main/resources/js/ui/component/tree/directives/tree-open.directive.js',
                     'src/main/resources/js/ui/component/tree/directives/tree-path.directive.js',
+                    'src/main/resources/js/services/batch-remove-service.js',
                 ],
                 dest: 'dist/sprat-angular.js'
 			}
