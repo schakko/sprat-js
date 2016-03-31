@@ -527,7 +527,7 @@ module.service('BatchRemoveService', BatchRemoveService, [ '$q' ]);
 
 function BatchRemoveService($q) {
 	var vm = this;
-	
+
 	vm.remove = function($items, $service, $opts) {
 		var toRemove = [];
 
@@ -571,13 +571,14 @@ function BatchRemoveService($q) {
 		var totalRemoved = 0;
 
 		for (var i = 0, m = toRemove.length; i < m; i++) {
-			var item = toRemove[i];
-
-			/* jshint -W083 */
-			requests.push($service.remove(item).then(function(data) {
-				totalRemoved++;
-				sprat.util.array.removeById($items, item.id);
-			}));
+			//using closure to prevent referencing of last value in callback
+			(function(item) {
+				/* jshint -W083 */
+				requests.push($service.remove(item).then(function(data) {
+					totalRemoved++;
+					sprat.util.array.removeById($items, item.id);
+				}));
+			})(toRemove[i]);
 		}
 
 		$q.all(requests).then(function() {
