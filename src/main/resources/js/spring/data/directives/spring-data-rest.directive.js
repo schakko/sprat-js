@@ -47,6 +47,16 @@ module.directive('springDataRest', function() {
 			$scope.currentPage = '0';
 			// use util.rest.collection to extract the response data
 			$scope.extractContent = false;
+			// begin fetch broadcast name
+			vm.beginFetchEvent = 'spring-data-rest.begin-fetch';
+			// end fetch broadcast name
+			vm.endFetchEvent = 'spring-data-rest.end-fetch';
+
+			// if we have a listener id prefix our events
+			if ($scope.listenerId) {
+				vm.beginFetchEvent = $scope.listenerId + '.' + vm.beginFetchEvent;
+				vm.endFetchEvent = $scope.listenerId + '.' + vm.endFetchEvent;
+			}
 
 			/**
 			 * trigger loading of first page
@@ -179,7 +189,7 @@ module.directive('springDataRest', function() {
 				}
 
 				// notify child element
-				$scope.$root.$broadcast('spring-data-rest.begin-fetch', page);
+				$scope.$root.$broadcast(vm.beginFetchEvent, page);
 
 				var requestParameters = vm.createRequestParameters(page);
 
@@ -201,7 +211,7 @@ module.directive('springDataRest', function() {
 					}
 
 					// notify child element
-					$scope.$root.$broadcast('spring-data-rest.end-fetch', page, $scope.refItems.length, $scope.refItems);
+					$scope.$root.$broadcast(vm.endFetchEvent, page, $scope.refItems.length, $scope.refItems);
 				});
 			};
 
