@@ -147,6 +147,25 @@ sprat.web = {
 			}
 
 			return [];
+		},
+		constraints: function(object, name) {
+			if (!object || !(object.constraints || object._constraints)) {
+				throw "Invalid HATEOAS object without .constraints";
+			}
+
+			var constraints = object._constraints || object.constraints;
+
+			if (constraints) {
+				var constraint = constraints[name];
+
+				if (!constraint) {
+					throw "HATEOAS constraint with name '" + name + "' does not exist";
+				}
+
+				return constraint;
+			}
+
+			return [];
 		}
 	},
 };

@@ -99,3 +99,34 @@ describe("sprat.web.hateoas.embedded", function () {
         expect($hateoas.embedded(object)).toEqual(object._embedded.customers);
     });
 });
+
+describe("sprat.web.hateoas.constraints", function () {
+
+    it("the constraint 'delete' can be found", function () {
+        var object = {
+            constraints: {
+                delete: [
+                    {
+                        id: 111
+                    }
+                ]
+            }
+        };
+
+        expect($hateoas.constraints(object, 'delete')[0]['id']).toEqual(111);
+    });
+
+    it("the _constraints can be found", function () {
+        var object = {
+            _constraints: {
+                delete: [
+                    {
+                        id: 222
+                    }
+                ]
+            }
+        };
+
+        expect($hateoas.constraints(object, 'delete')[0]['id']).toEqual(222);
+    });
+});
