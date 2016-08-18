@@ -102,7 +102,7 @@ describe("sprat.web.hateoas.embedded", function () {
 
 describe("sprat.web.hateoas.constraints", function () {
 
-    it("the constraint 'delete' can be found", function () {
+    it("the constraint 'delete' can be found in constraints", function () {
         var object = {
             constraints: {
                 delete: [
@@ -113,20 +113,56 @@ describe("sprat.web.hateoas.constraints", function () {
             }
         };
 
-        expect($hateoas.constraints(object, 'delete')[0]['id']).toEqual(111);
+        var actual = $hateoas.constraints(object, 'delete');
+        expect(actual.length).toEqual(1);
+        expect(actual[0]).toEqual({id: 111});
     });
 
-    it("the _constraints can be found", function () {
+    it("the constraint 'delete' can be found in _constraints", function () {
         var object = {
             _constraints: {
                 delete: [
                     {
                         id: 222
+                    },
+                    {
+                        id: 333
+                    },
+                    {
+                        id: 444
                     }
                 ]
             }
         };
 
-        expect($hateoas.constraints(object, 'delete')[0]['id']).toEqual(222);
+        var actual = $hateoas.constraints(object, 'delete');
+        expect(actual.length).toEqual(3);
+        expect(actual[0]).toEqual({id: 222});
+        expect(actual[1]).toEqual({id: 333});
+        expect(actual[2]).toEqual({id: 444});
+    });
+
+    it("an expection will be thrown because the object is invalid", function () {
+        var object = {};
+
+        expect(function () {
+            $hateoas.constraints(object, 'delete');
+        }).toThrow('Invalid HATEOAS object without .constraints');
+    });
+
+    it("an expection will be thrown because the constraint 'delete' does not exist", function () {
+        var object = {
+            constraints: {
+                somethingCompletelyDifferent: [
+                    {
+                        id: 111
+                    }
+                ]
+            }
+        };
+
+        expect(function () {
+            $hateoas.constraints(object, 'delete');
+        }).toThrow("HATEOAS constraint with name 'delete' does not exist");
     });
 });
